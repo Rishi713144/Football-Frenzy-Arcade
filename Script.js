@@ -49,7 +49,7 @@ const footballers = [
       },
       {
         name: "Paolo Maldini",
-        image: "https://w0.peakpx.com/wallpaper/809/437/HD-wallpaper-paolo-maldini-milan.jpg",
+        image: "https://wallpapers.com/images/featured/paolo-maldini-iqin5cg83r7uncx0.jpg",
         position: "Defender",
         bio: "The AC Milan legend, regarded as one of the greatest and most versatile defenders ever. He epitomized loyalty, spending his entire 25-year career with the club.",
         achievements: ["5x UEFA Champions League Winner", "7x Serie A Champion", "AC Milan All-Time Appearance Leader"],
