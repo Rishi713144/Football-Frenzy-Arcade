@@ -1,0 +1,94 @@
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Footballer Predictor</title>
+    
+        <link rel="stylesheet" href="style.css" /> 
+    
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <script src="Script.js" defer></script>
+  </head>
+
+  <body>
+  <h1>Football Frenzy Arcade</h1>
+  
+  <div class="input-container">
+    <input
+      type="text"
+      id="userName"
+      placeholder="Enter your name"
+      onkeypress="handleEnter(event)"
+    />
+  </div>
+
+  <div class="button-container" id="mainMenu">
+    <button onclick="startGameMode('quiz')">Identity Matcher</button>
+    <button onclick="startGameMode('penalty')">Penalty Shootout</button>
+    <button onclick="startGameMode('keepie')">Keepie Uppie Challenge</button>
+
+  </div>
+
+  <div class="button-container" id="gameControls" style="display:none;">
+      <button onclick="showMenu()">Back to Menu</button>
+      <button onclick="resetCurrentGame()">Restart Game</button>
+  </div>
+
+  <!-- QUIZ SECTION -->
+  <div id="quizApp" style="display:none;">
+      <h2>Which Footballer Are You?</h2>
+      <div id="quizContainer">
+        <div id="timerContainer">
+            <div id="timerBar"></div>
+        </div>
+        <div id="questionText" class="quiz-question"></div>
+        <div id="optionsContainer"></div>
+      </div>
+      
+      <div id="progressContainer">
+        <div id="progressBackground">
+          <div id="progressBar"></div>
+        </div>
+        <div id="progressText">Analyzing stats...</div>
+      </div>
+      
+      <div id="resultContainer">
+        <img id="randomImage" src="" alt="Footballer Image" />
+        <h2 id="playerName" class="hidden-initial"></h2>
+        <p id="playerPosition" class="hidden-initial"></p>
+        <p id="playerBio" class="hidden-initial"></p>
+        <div id="playerAchievements" class="hidden-initial">
+          <h3>Achievements:</h3>
+          <ul id="achievementsList"></ul>
+        </div>
+      </div>
+  </div>
+
+  <!-- PENALTY GAME SECTION -->
+  <div id="minigameContainer">
+    <h2>Penalty Shootout!</h2>
+    <div id="scoreBoard">Score: <span id="penaltyScore">0</span></div>
+    <div id="gameArea">
+      <div id="goal">
+        <div id="goalkeeper"></div>
+      </div>
+      <div id="ball"></div>
+    </div>
+    <p id="gameMessage">Tap or Spacebar to Shoot!</p>
+  </div>
+
+  <!-- KEEPIE UPPIE SECTION -->
+  <div id="keepieContainer" style="display:none;">
+      <h2>Keepie Uppie Challenge</h2>
+      <p>Keep the ball in the air!</p>
+      <div id="keepieScoreBoard">Score: <span id="keepieScore">0</span> | Best: <span id="keepieBest">0</span></div>
+      <div id="keepieArea">
+          <div id="keepieTarget"></div>
+          <div id="keepieBall"></div>
+      </div>
+      <p id="keepieMessage">Click/Tap the ball to start!</p>
+</html>
+
