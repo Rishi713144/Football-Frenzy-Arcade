@@ -17,7 +17,7 @@ const footballers = [
       },
       {
         name: "Kylian Mbappé",
-        image: "https://miro.medium.com/v2/resize:fit:1400/1*SH23000Oy7JRqyslNyPGoA.jpeg",
+        image: "https://cdn.antaranews.com/cache/1200x800/2022/03/13/PSG-17601.jpg.webp",
         position: "Forward",
         bio: "A French speedster and generational talent known for his blistering pace and clinical finishing, leading the next era of global football.",
         achievements: ["FIFA World Cup Champion (2018)", "6x Ligue 1 Champion", "World Cup Final Hat-trick (2022)"],
