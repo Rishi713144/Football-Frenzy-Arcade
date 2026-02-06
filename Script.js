@@ -815,36 +815,55 @@ const footballers = [
         return null;
       }
 
-      let bestMatch = null;
-      let minDistance = Infinity;
       const numQuestions = quizQuestions.length || 1;
 
-      footballers.forEach(footballer => {
-        // Simple Average to normalize user traits (0-18) to footballer scale (0-3)
-        // If user picks all "Power +3" options (6 times), total is 18. 18/6 = 3. Matches max power 3.
-        const uPower = userTraits.power / numQuestions;
-        const uFlair = userTraits.flair / numQuestions;
-        const uLead = userTraits.leadership / numQuestions;
-        const uTeam = userTraits.teamwork / numQuestions;
+      // Calculate normalized user traits
+      const uPower = userTraits.power / numQuestions;
+      const uFlair = userTraits.flair / numQuestions;
+      const uLead = userTraits.leadership / numQuestions;
+      const uTeam = userTraits.teamwork / numQuestions;
 
+      // Calculate distances for all footballers
+      const candidates = footballers.map(footballer => {
         const distance =
           Math.abs(footballer.traits.power - uPower) +
           Math.abs(footballer.traits.flair - uFlair) +
           Math.abs(footballer.traits.leadership - uLead) +
           Math.abs(footballer.traits.teamwork - uTeam);
-
-        if (distance < minDistance) {
-          minDistance = distance;
-          bestMatch = { ...footballer }; // Create a copy
-        }
+        
+        return { ...footballer, distance };
       });
 
+      // Sort by distance (ascending)
+      candidates.sort((a, b) => a.distance - b.distance);
+
+      // Select from top candidates to ensure variety ("Fair for everyone")
+      // instead of always picking the single mathematical closest (which biases towards "average" stats).
+      // We consider the top 3 closest matches, provided they are within a reasonable range.
+      const topCandidates = candidates.slice(0, 3);
+      
+      // Filter: Only keep candidates that are within a small distance margin of the absolute best match.
+      // This ensures we don't pick a wildly inaccurate match just for variety.
+      const bestDist = topCandidates[0].distance;
+      const validCandidates = topCandidates.filter(c => c.distance <= bestDist + 1.25);
+
+      // Deterministic Selection:
+      // Use a hash of the user's answers to pick one of the valid candidates.
+      // This ensures that validCandidates[0] (the closest) doesn't always win ties or near-ties,
+      // but the result remains CONSTANT for the same inputs (unlike Math.random()).
+      const inputHash = 
+        Math.floor(uPower * 100) * 1 + 
+        Math.floor(uFlair * 100) * 3 + 
+        Math.floor(uLead * 100) * 7 + 
+        Math.floor(uTeam * 100) * 13;
+        
+      const selectedIndex = inputHash % validCandidates.length;
+      const bestMatch = validCandidates[selectedIndex];
+
       // Calculate Match Percentage
-      // Max possible distance per trait is ~3. Total max distance ~12.
-      // If distance is 0, match is 100%. If distance is 3, match is ~75%.
-      // Formula: 100 - (distance * 8) ensures a reasonable spread (Dist 2 => 84%)
+      // Formula refined to reflect the selected match's distance
       if (bestMatch) {
-          let percent = Math.max(50, 100 - (minDistance * 9)); 
+          let percent = Math.max(50, 100 - (bestMatch.distance * 9)); 
           bestMatch.matchPercentage = Math.round(percent);
       }
 
