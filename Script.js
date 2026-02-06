@@ -241,9 +241,9 @@ const footballers = [
     // Keepie Uppie Variables
     let keepieScore = 0;
     let keepieBest = 0;
-    let keepieBallY = 50; // %
+    let keepieBallY = 50;
     let keepieBallVelocity = 0;
-    let keepieGravity = 0.5; // Reduced gravity for easier testing
+    let keepieGravity = 0.5; 
     let keepieGameActive = false;
     let keepieAnimation;
 
@@ -251,7 +251,7 @@ const footballers = [
 
     function showMenu() {
         // Reset Everything
-        resetProgram(true); // Silent reset
+        resetProgram(true); 
         
         // Hide Games
         document.getElementById("quizApp").style.display = "none";
@@ -308,7 +308,7 @@ const footballers = [
     // --- QUIZ LOGIC ---
 
     function startQuiz() {
-      // ... (Existing startQuiz logic, but ensure containers are shown correctly)
+      
       isProgramStopped = false;
       currentFootballer = null;
       currentQuestionIndex = 0;
@@ -378,7 +378,7 @@ const footballers = [
       if (currentQuestionIndex < quizQuestions.length) {
         showQuestion();
       } else {
-        showResult(); // Direct to result in Quiz Mode
+        showResult(); 
       }
     }
 
@@ -461,7 +461,7 @@ const footballers = [
         const gameArea = document.getElementById("gameArea");
         
         // Calculate Aim Target (0-100%)
-        let targetX = 50; // Default center for keyboard
+        let targetX = 50; 
         
         if (event && (event.type === 'click' || event.type === 'touchstart')) {
             const rect = gameArea.getBoundingClientRect();
@@ -475,7 +475,7 @@ const footballers = [
                 targetX = Math.max(10, Math.min(90, targetX));
             }
         } else {
-            // Randomize slightly for keyboard to prevent perfect center abuse
+          
             targetX = 45 + Math.random() * 10;
         }
 
@@ -490,9 +490,7 @@ const footballers = [
         
         // Determine result after animation
         setTimeout(() => {
-            // Hit detection: Ball Width vs Keeper Width
-            // Keeper is roughly 10% width, Ball is small.
-            // We check distance between centers.
+            
             const dist = Math.abs(keeperPosition - targetX);
             const saved = dist < 8; // Hit box range
             
@@ -656,12 +654,6 @@ const footballers = [
         }
     });
     
-    // Add Click listener to game area specifically once on load usually, 
-    // but here we can rely on onclick in HTML or delegate.
-    // Let's add it safely at end of file or init. 
-    // For now, let's just make sure the element exists.
-    // (Will add init listener at bottom of file or inside startMinigame if needed, 
-    // but better to just have global listener or onclick attribute).
     
     function showResult() {
       document.getElementById("quizContainer").classList.remove("show");
@@ -837,20 +829,14 @@ const footballers = [
       // Sort by distance (ascending)
       candidates.sort((a, b) => a.distance - b.distance);
 
-      // Select from top candidates to ensure variety ("Fair for everyone")
-      // instead of always picking the single mathematical closest (which biases towards "average" stats).
-      // We consider the top 3 closest matches, provided they are within a reasonable range.
+     
       const topCandidates = candidates.slice(0, 3);
       
-      // Filter: Only keep candidates that are within a small distance margin of the absolute best match.
-      // This ensures we don't pick a wildly inaccurate match just for variety.
+    
       const bestDist = topCandidates[0].distance;
       const validCandidates = topCandidates.filter(c => c.distance <= bestDist + 1.25);
 
-      // Deterministic Selection:
-      // Use a hash of the user's answers to pick one of the valid candidates.
-      // This ensures that validCandidates[0] (the closest) doesn't always win ties or near-ties,
-      // but the result remains CONSTANT for the same inputs (unlike Math.random()).
+     
       const inputHash = 
         Math.floor(uPower * 100) * 1 + 
         Math.floor(uFlair * 100) * 3 + 
@@ -860,8 +846,6 @@ const footballers = [
       const selectedIndex = inputHash % validCandidates.length;
       const bestMatch = validCandidates[selectedIndex];
 
-      // Calculate Match Percentage
-      // Formula refined to reflect the selected match's distance
       if (bestMatch) {
           let percent = Math.max(50, 100 - (bestMatch.distance * 9)); 
           bestMatch.matchPercentage = Math.round(percent);
@@ -974,7 +958,7 @@ const footballers = [
              });
          }
          
-         // Global restart listener? Maybe not needed as we have UI buttons now.
+         
     });
 
 
