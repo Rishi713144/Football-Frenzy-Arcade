@@ -97,7 +97,7 @@ const footballers = [
       },
       {
         name: "Neymar Jr.",
-        image: "https://upload.wikimedia.org/wikipedia/commons/5/55/Neymar_2018.jpg",
+        image: "https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/7f5c/live/d265d420-de30-11ef-ac5a-93e8b29ec95c.jpg",
         position: "Forward",
         bio: "Brazilian dribbler known for his incredible flair, mesmerizing skills, and trickery. One of the most gifted and entertaining players of his generation.",
         achievements: ["Copa Libertadores Winner", "UEFA Champions League Winner", "Olympic Gold Medalist"],
