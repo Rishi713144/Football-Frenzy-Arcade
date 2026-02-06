@@ -188,6 +188,33 @@ const footballers = [
           { text: "Lead and rally others to overcome", traits: { power: 0, flair: 0, leadership: 3, teamwork: 2 } },
           { text: "Stay calm and find a balanced solution", traits: { power: 1, flair: 1, leadership: 1, teamwork: 1 } }
         ]
+      },
+      {
+        question: "Last minute, team needs a goal. You...",
+        options: [
+           { text: "Demand the ball and shoot from distance", traits: { power: 2, flair: 0, leadership: 2, teamwork: 0 } },
+           { text: "Try a solo run through the defense", traits: { power: 0, flair: 3, leadership: 0, teamwork: 0 } },
+           { text: "Organize the attack for the best pass", traits: { power: 0, flair: 0, leadership: 2, teamwork: 2 } },
+           { text: "Wait in the box for the perfect cross", traits: { power: 2, flair: 0, leadership: 0, teamwork: 1 } }
+        ]
+      },
+      {
+        question: "What is your training focus?",
+        options: [
+           { text: "Gym and physical conditioning", traits: { power: 3, flair: 0, leadership: 0, teamwork: 1 } },
+           { text: "Skill moves and dribbling mastery", traits: { power: 0, flair: 3, leadership: 0, teamwork: 0 } },
+           { text: "Tactical analysis and positioning", traits: { power: 0, flair: 0, leadership: 2, teamwork: 2 } },
+           { text: "Passing drills and team chemistry", traits: { power: 0, flair: 0, leadership: 1, teamwork: 3 } }
+        ]
+      },
+      {
+         question: "How do you celebrate a goal?",
+         options: [
+            { text: "A signature acrobatic move", traits: { power: 1, flair: 3, leadership: 0, teamwork: 0 } },
+            { text: "Running to the fans and screaming", traits: { power: 2, flair: 1, leadership: 1, teamwork: 0 } },
+            { text: "Pointing to the assist provider", traits: { power: 0, flair: 0, leadership: 1, teamwork: 3 } },
+            { text: "Calm, cool, handled business", traits: { power: 0, flair: 1, leadership: 2, teamwork: 1 } }
+         ]
       }
     ];
 
@@ -197,25 +224,97 @@ const footballers = [
     let userTraits = { power: 0, flair: 0, leadership: 0, teamwork: 0 };
     let progressInterval = null;
     let timeouts = [];
+    
+    // Game & Timer Variables
+    let questionTimer;
+    const QUESTION_TIME = 10;
+    let timeLeft;
+    let minigameInterval;
+    let keeperDirection = 1;
+    let keeperPosition = 50;
+    let gameActive = false;
+    let shotTaken = false;
+    let penaltyScore = 0;
+    let currentGameMode = '';
+    let currentUserName = "Player";
+
+    // Keepie Uppie Variables
+    let keepieScore = 0;
+    let keepieBest = 0;
+    let keepieBallY = 50; // %
+    let keepieBallVelocity = 0;
+    let keepieGravity = 0.5; // Reduced gravity for easier testing
+    let keepieGameActive = false;
+    let keepieAnimation;
+
+    // --- MENU LOGIC ---
+
+    function showMenu() {
+        // Reset Everything
+        resetProgram(true); // Silent reset
+        
+        // Hide Games
+        document.getElementById("quizApp").style.display = "none";
+        document.getElementById("minigameContainer").style.display = "none";
+        document.getElementById("keepieContainer").style.display = "none";
+        document.getElementById("gameControls").style.display = "none";
+        
+        // Show Input & Menu
+        document.querySelector(".input-container").style.display = "block";
+        document.getElementById("mainMenu").style.display = "flex";
+        
+        // Ensure buttons are enabled
+        document.querySelectorAll("button").forEach(button => button.disabled = false);
+    }
+
+    function startGameMode(mode) {
+        const userNameInput = document.getElementById("userName").value.trim();
+        if (!userNameInput) {
+            alert("Please enter your name first!");
+            return;
+        }
+        currentUserName = userNameInput;
+
+        currentGameMode = mode;
+        document.querySelector(".input-container").style.display = "none";
+        document.getElementById("mainMenu").style.display = "none";
+        document.getElementById("gameControls").style.display = "flex";
+
+        if (mode === 'quiz') {
+            document.getElementById("quizApp").style.display = "block";
+            startQuiz();
+        } else if (mode === 'penalty') {
+            document.getElementById("minigameContainer").classList.add("show");
+            document.getElementById("minigameContainer").style.display = "block";
+            startPenaltyGame();
+        } else if (mode === 'keepie') {
+            document.getElementById("keepieContainer").style.display = "block";
+            startKeepieGame();
+        }
+    }
+
+    function resetCurrentGame() {
+        if(currentGameMode === 'quiz') {
+            resetProgram(true); // Silent reset
+            startQuiz();
+        } else if(currentGameMode === 'penalty') {
+            document.getElementById("minigameContainer").classList.remove("show"); // fix hide
+            setTimeout(startPenaltyGame, 100); // slight delay
+        } else if(currentGameMode === 'keepie') {
+            startKeepieGame();
+        }
+    }
+
+    // --- QUIZ LOGIC ---
 
     function startQuiz() {
-      const userName = document.getElementById("userName").value.trim();
-      if (!userName) {
-        alert("Please enter your name before starting the quiz!");
-        return;
-      }
-
-      document.getElementById("startQuizButton").classList.add("clicked");
-      timeouts.push(setTimeout(() => {
-        document.getElementById("startQuizButton").classList.remove("clicked");
-      }, 300));
-
+      // ... (Existing startQuiz logic, but ensure containers are shown correctly)
       isProgramStopped = false;
       currentFootballer = null;
       currentQuestionIndex = 0;
       userTraits = { power: 0, flair: 0, leadership: 0, teamwork: 0 };
       document.getElementById("quizContainer").classList.add("show");
-      document.getElementById("startQuizButton").disabled = true;
+      document.getElementById("quizContainer").style.display = "block";
       showQuestion();
     }
 
@@ -224,6 +323,9 @@ const footballers = [
       const optionsContainer = document.getElementById("optionsContainer");
       const currentQuestion = quizQuestions[currentQuestionIndex];
 
+      // Start/Reset Timer
+      startTimer();
+      
       questionContainer.innerHTML = `<h3>${currentQuestion.question}</h3>`;
       optionsContainer.innerHTML = "";
 
@@ -236,7 +338,38 @@ const footballers = [
       });
     }
 
+    function startTimer() {
+        if (questionTimer) clearInterval(questionTimer);
+        timeLeft = QUESTION_TIME;
+        updateTimerUI();
+        
+        questionTimer = setInterval(() => {
+            timeLeft--;
+            updateTimerUI();
+            if (timeLeft <= 0) {
+                clearInterval(questionTimer);
+                // Time's up! Pick random trait to continue
+                const currentFromTimer = quizQuestions[currentQuestionIndex];
+                const randomOptionIndex = Math.floor(Math.random() * currentFromTimer.options.length); 
+                const randomTrait = currentFromTimer.options[randomOptionIndex].traits;
+                selectOption(randomTrait);
+            }
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        const bar = document.getElementById("timerBar");
+        if(bar) {
+            bar.style.width = `${(timeLeft / QUESTION_TIME) * 100}%`;
+            // Color change
+            if(timeLeft <= 3) bar.style.backgroundColor = "#ff6b6b"; 
+            else bar.style.backgroundColor = "#28a745";
+        }
+    }
+
     function selectOption(traits) {
+      if (questionTimer) clearInterval(questionTimer); 
+      
       for (let trait in traits) {
         userTraits[trait] += traits[trait];
       }
@@ -245,10 +378,291 @@ const footballers = [
       if (currentQuestionIndex < quizQuestions.length) {
         showQuestion();
       } else {
-        showResult();
+        showResult(); // Direct to result in Quiz Mode
       }
     }
 
+    // --- PENALTY SHOOTOUT LOGIC ---
+
+    let keeperSpeed = 1.5;
+    let winStreak = 0;
+
+    function startPenaltyGame() {
+       gameActive = true;
+       shotTaken = false;
+       keeperPosition = 50;
+       penaltyScore = 0;
+       winStreak = 0;
+       keeperSpeed = 1.5;
+       
+       document.getElementById("penaltyScore").textContent = penaltyScore;
+       // Update Scoreboard Label
+       const scoreBoard = document.getElementById("scoreBoard");
+       if(scoreBoard) scoreBoard.innerHTML = `${currentUserName}'s Score: <span id="penaltyScore">0</span>`;
+
+       document.getElementById("gameMessage").textContent = `Ready, ${currentUserName}? Tap to Shoot!`;
+       document.getElementById("gameMessage").style.color = "var(--secondary-color)";
+       
+       // Reset Ball
+       const ball = document.getElementById("ball");
+        if(ball) {
+            ball.classList.remove("ball-moving");
+            ball.style.top = "";
+            ball.style.bottom = "30px";
+            ball.style.left = "50%";
+            ball.style.transform = "translateX(-50%)";
+        }
+       
+       // Start Game Loop
+       if(minigameInterval) cancelAnimationFrame(minigameInterval);
+       activeGameLoop();
+    }
+    
+    function activeGameLoop() {
+        if(!gameActive) return;
+        
+        // Move Keeper
+        keeperPosition += keeperDirection * keeperSpeed; 
+        
+        // Erratic movement at higher scores
+        if (penaltyScore >= 5 && Math.random() < 0.02) keeperDirection *= -1;
+        
+        // Bounds
+        if (keeperPosition > 90 || keeperPosition < 10) keeperDirection *= -1;
+        
+        // Clamp
+        keeperPosition = Math.max(10, Math.min(90, keeperPosition));
+
+        const keeper = document.getElementById("goalkeeper");
+        if(keeper) keeper.style.left = keeperPosition + "%";
+        
+        minigameInterval = requestAnimationFrame(activeGameLoop);
+    }
+
+// Helper for visual effects
+    function showFloatingText(container, x, y, text, color) {
+        const floatEl = document.createElement("div");
+        floatEl.classList.add("floating-text");
+        floatEl.textContent = text;
+        floatEl.style.color = color || "#fff";
+        floatEl.style.left = x;
+        floatEl.style.top = y; 
+        
+        container.appendChild(floatEl);
+        setTimeout(() => floatEl.remove(), 1000);
+    }
+
+    // Improved shoot with aiming
+    function shoot(event) {
+        if (!gameActive || shotTaken) return;
+        shotTaken = true;
+        
+        const ball = document.getElementById("ball");
+        const gameArea = document.getElementById("gameArea");
+        
+        // Calculate Aim Target (0-100%)
+        let targetX = 50; // Default center for keyboard
+        
+        if (event && (event.type === 'click' || event.type === 'touchstart')) {
+            const rect = gameArea.getBoundingClientRect();
+            // Handle touch or mouse
+            const clientX = (event.touches && event.touches.length > 0) ? event.touches[0].clientX : event.clientX;
+            
+            // If valid clientX found
+            if (clientX) {
+                targetX = ((clientX - rect.left) / rect.width) * 100;
+                // Clamp to stay within reasonable bounds
+                targetX = Math.max(10, Math.min(90, targetX));
+            }
+        } else {
+            // Randomize slightly for keyboard to prevent perfect center abuse
+            targetX = 45 + Math.random() * 10;
+        }
+
+        ball.classList.add("ball-moving");
+        
+        // Animate Shot
+        ball.style.left = targetX + "%";
+        ball.style.bottom = "80%"; // Move up into goal
+        // Add spin and scale
+        const spin = (Math.random() < 0.5 ? -1 : 1) * 720;
+        ball.style.transform = `translateX(-50%) scale(0.6) rotate(${spin}deg)`; 
+        
+        // Determine result after animation
+        setTimeout(() => {
+            // Hit detection: Ball Width vs Keeper Width
+            // Keeper is roughly 10% width, Ball is small.
+            // We check distance between centers.
+            const dist = Math.abs(keeperPosition - targetX);
+            const saved = dist < 8; // Hit box range
+            
+            if (saved) {
+                document.getElementById("gameMessage").innerHTML = "<span style='color:#ff6b6b; font-weight:bold'>SAVED!</span>";
+                showFloatingText(document.getElementById("gameArea"), targetX + "%", "40%", "SAVED!", "#ff6b6b");
+                gameActive = false; 
+                winStreak = 0;
+                cancelAnimationFrame(minigameInterval);
+            } else {
+                penaltyScore++;
+                winStreak++;
+                document.getElementById("penaltyScore").textContent = penaltyScore;
+                
+                let msg = "GOAL!";
+                let color = "var(--neon-green)";
+                
+                if (winStreak > 2) {
+                    msg = "ON FIRE!!";
+                    color = "var(--neon-pink)";
+                }
+                
+                document.getElementById("gameMessage").innerHTML = `<span style='color:${color}; font-weight:bold'>${msg}</span>`;
+                showFloatingText(document.getElementById("gameArea"), targetX + "%", "20%", msg, color);
+                
+                setTimeout(() => {
+                    ball.classList.remove("ball-moving");
+                    ball.style.top = "";
+                    ball.style.bottom = "30px";
+                    ball.style.left = "50%";
+                    ball.style.transform = "translateX(-50%) rotate(0deg)";
+                    shotTaken = false;
+                    document.getElementById("gameMessage").textContent = "Shoot again!";
+                    document.getElementById("gameMessage").style.color = "var(--text-secondary)";
+                    
+                     // Increase Difficulty
+                     if (penaltyScore % 3 === 0) keeperSpeed += 0.3;
+                     
+                }, 1000);
+            }
+        }, 600);
+    }
+
+    // --- KEEPIE UPPIE LOGIC ---
+
+    function startKeepieGame() {
+        keepieScore = 0;
+        document.getElementById("keepieScore").textContent = 0;
+        
+        const sb = document.getElementById("keepieScoreBoard");
+        if(sb) sb.innerHTML = `${currentUserName}'s Score: <span id="keepieScore">0</span> | Best: <span id="keepieBest">${keepieBest}</span>`;
+
+        document.getElementById("keepieMessage").textContent = `Tap anywhere to kick! Hit the Green Zone for x2 Points!`;
+        
+        keepieBallY = 50;
+        keepieBallVelocity = 0;
+        keepieGameActive = false; // Waits for first tap
+        
+        const ball = document.getElementById("keepieBall");
+        if (ball) {
+            // Force Reset
+            ball.style.display = 'block'; 
+            ball.style.bottom = "50%";
+            ball.style.left = "50%";
+            ball.style.transform = "translate(-50%, 0) rotate(0deg) scale(1)";
+            ball.style.opacity = "1";
+            ball.style.visibility = "visible";
+            ball.classList.remove('ball-squash');
+        }
+
+        if (keepieAnimation) cancelAnimationFrame(keepieAnimation);
+        keepieLoop();
+    }
+
+    function keepieTap(event) {
+        if (!keepieGameActive && keepieScore === 0) {
+            keepieGameActive = true;
+            document.getElementById("keepieMessage").textContent = "";
+        }
+        
+        if (!keepieGameActive && keepieBallY <= 0) {
+             // Restart request handled by game loop reset usually, but if clicked after death
+             resetCurrentGame();
+             return;
+        }
+        
+        if (!keepieGameActive) return; 
+
+        keepieBallVelocity = 12; 
+        
+        // Target Zone Logic (Target is at 20%)
+        let points = 1;
+        let floatsText = "+1";
+        let floatColor = "var(--neon-green)";
+        
+        // Perfect zone: 15% to 25%
+        if(keepieBallY >= 15 && keepieBallY <= 25) {
+            points = 2;
+            floatsText = "PERFECT! +2";
+            floatColor = "var(--neon-cyan)";
+            triggerGlow(document.getElementById("keepieTarget"));
+        }
+
+        keepieScore += points;
+        document.getElementById("keepieScore").textContent = keepieScore;
+        
+        const ball = document.getElementById("keepieBall");
+        
+        // Squash Effect
+        ball.style.transform = "translate(-50%, 0) scale(1.3, 0.7)"; 
+        setTimeout(() => {
+             ball.style.transform = `translate(-50%, 0) scale(1) rotate(${Math.random() * 360}deg)`;
+        }, 100);
+
+        // Floating Text
+        showFloatingText(document.getElementById("keepieArea"), "50%", (90 - keepieBallY) + "%", floatsText, floatColor);
+    }
+
+    function triggerGlow(element) {
+        if(!element) return;
+        element.style.filter = "drop-shadow(0 0 15px var(--neon-cyan)) brightness(1.5)";
+        setTimeout(() => {
+             element.style.filter = "blur(5px)";
+        }, 300);
+    }
+
+    function keepieLoop() {
+        if (keepieGameActive) {
+            keepieBallY += keepieBallVelocity;
+            keepieBallVelocity -= keepieGravity;
+
+            const ball = document.getElementById("keepieBall");
+            
+            // Floor collision (Game Over)
+            if (keepieBallY < 0) {
+                keepieBallY = 0;
+                keepieGameActive = false;
+                document.getElementById("keepieMessage").textContent = `Dropped! Game Over, ${currentUserName}.`;
+                if (keepieScore > keepieBest) {
+                    keepieBest = keepieScore;
+                    document.getElementById("keepieBest").textContent = keepieBest;
+                }
+            }
+            
+            // Ceiling collision (Just bounce)
+            if (keepieBallY > 90) {
+                 keepieBallVelocity = -5;
+            }
+
+            ball.style.bottom = keepieBallY + "%";
+        }
+        keepieAnimation = requestAnimationFrame(keepieLoop);
+    }
+    
+    // Wire up events
+    document.addEventListener('keydown', (e) => {
+        const gameContainer = document.getElementById("minigameContainer");
+        if (e.code === 'Space' && gameContainer && gameContainer.classList.contains("show")) {
+             e.preventDefault(); 
+             shoot();
+        }
+    });
+    
+    // Add Click listener to game area specifically once on load usually, 
+    // but here we can rely on onclick in HTML or delegate.
+    // Let's add it safely at end of file or init. 
+    // For now, let's just make sure the element exists.
+    // (Will add init listener at bottom of file or inside startMinigame if needed, 
+    // but better to just have global listener or onclick attribute).
+    
     function showResult() {
       document.getElementById("quizContainer").classList.remove("show");
       document.getElementById("progressContainer").classList.add("show");
@@ -265,7 +679,7 @@ const footballers = [
           clearInterval(progressInterval);
           progressInterval = null;
           progress = 100;
-          document.getElementById("progressText").textContent = "Match Found!";
+          document.getElementById("progressText").textContent = `Match Found for ${currentUserName}!`;
           if (!isProgramStopped) {
             const match = findBestMatch();
             if (match) displayFootballer();
@@ -275,7 +689,7 @@ const footballers = [
               document.getElementById("playerName").textContent = "No Match Found";
               document.getElementById("playerName").classList.remove("hidden-initial");
               document.getElementById("playerName").classList.add("show");
-              document.getElementById("playerBio").textContent = "Sorry, we couldn't find a footballer that matches your traits. Try again!";
+              document.getElementById("playerBio").textContent = `Sorry ${currentUserName}, we couldn't find a footballer that matches your traits. Try again!`;
               document.getElementById("playerBio").classList.remove("hidden-initial");
               document.getElementById("playerBio").classList.add("show");
               isProgramStopped = true;
@@ -284,7 +698,7 @@ const footballers = [
           }
         }
         document.getElementById("progressBar").style.width = `${progress}%`;
-        document.getElementById("progressText").textContent = `Analyzing... ${Math.floor(progress)}%`;
+        document.getElementById("progressText").textContent = `Analyzing ${currentUserName}'s stats... ${Math.floor(progress)}%`;
       }, 150);
 
       timeouts.push(setTimeout(() => {
@@ -292,7 +706,7 @@ const footballers = [
           clearInterval(progressInterval);
           progressInterval = null;
           document.getElementById("progressBar").style.width = "100%";
-          document.getElementById("progressText").textContent = "Match Found!";
+          document.getElementById("progressText").textContent = `Match Found for ${currentUserName}!`;
           const match = findBestMatch();
           if (match) displayFootballer();
           else {
@@ -301,7 +715,7 @@ const footballers = [
             document.getElementById("playerName").textContent = "No Match Found";
             document.getElementById("playerName").classList.remove("hidden-initial");
             document.getElementById("playerName").classList.add("show");
-            document.getElementById("playerBio").textContent = "Sorry, we couldn't find a footballer that matches your traits. Try again!";
+            document.getElementById("playerBio").textContent = `Sorry ${currentUserName}, we couldn't find a footballer that matches your traits. Try again!`;
             document.getElementById("playerBio").classList.remove("hidden-initial");
             document.getElementById("playerBio").classList.add("show");
             isProgramStopped = true;
@@ -339,19 +753,26 @@ const footballers = [
       const resultContainer = document.getElementById("resultContainer");
 
       imageElement.src = currentFootballer.image;
+      
+      let hasRevealed = false;
 
-      const showResult = () => {
-        if (isProgramStopped) return;
+      const revealProfile = () => {
+        if (isProgramStopped || hasRevealed) return;
+        hasRevealed = true;
 
         document.getElementById("progressContainer").classList.remove("show");
         resultContainer.classList.add("show");
 
+        // Animate Image
         imageElement.classList.add("show");
+        
         playerNameElement.textContent = currentFootballer.name;
         playerNameElement.classList.remove("hidden-initial");
         playerNameElement.classList.add("show");
 
-        playerPositionElement.textContent = `Position: ${currentFootballer.position}`;
+        // Show Match Percentage
+        const matchText = currentFootballer.matchPercentage ? ` • ${currentFootballer.matchPercentage}% Match` : "";
+        playerPositionElement.textContent = `Position: ${currentFootballer.position}${matchText}`;
         playerPositionElement.classList.remove("hidden-initial");
         playerPositionElement.classList.add("show");
 
@@ -370,16 +791,22 @@ const footballers = [
         }
 
         isProgramStopped = true;
-        document.querySelectorAll('button:not([onclick="resetProgram()"]):not(.theme-toggle)').forEach(button => button.disabled = true);
+        
+         // Disable quiz buttons but keep game control buttons enabled
+         const quizButtons = document.querySelectorAll('#quizContainer button');
+         quizButtons.forEach(button => button.disabled = true);
+         
+         // Ensure main control buttons are ENABLED
+         document.querySelectorAll('#gameControls button').forEach(button => button.disabled = false);
       };
 
-      imageElement.onload = showResult;
+      imageElement.onload = revealProfile;
       imageElement.onerror = () => {
         console.error("Image failed to load:", currentFootballer.image);
-        showResult();
+        revealProfile();
       };
 
-      timeouts.push(setTimeout(showResult, 2000));
+      timeouts.push(setTimeout(revealProfile, 2000));
     }
 
     function findBestMatch() {
@@ -388,30 +815,65 @@ const footballers = [
         return null;
       }
 
-      let bestMatch = footballers[0];
+      let bestMatch = null;
       let minDistance = Infinity;
+      const numQuestions = quizQuestions.length || 1;
 
       footballers.forEach(footballer => {
+        // Simple Average to normalize user traits (0-18) to footballer scale (0-3)
+        // If user picks all "Power +3" options (6 times), total is 18. 18/6 = 3. Matches max power 3.
+        const uPower = userTraits.power / numQuestions;
+        const uFlair = userTraits.flair / numQuestions;
+        const uLead = userTraits.leadership / numQuestions;
+        const uTeam = userTraits.teamwork / numQuestions;
+
         const distance =
-          Math.abs(footballer.traits.power - userTraits.power) +
-          Math.abs(footballer.traits.flair - userTraits.flair) +
-          Math.abs(footballer.traits.leadership - userTraits.leadership) +
-          Math.abs(footballer.traits.teamwork - userTraits.teamwork);
+          Math.abs(footballer.traits.power - uPower) +
+          Math.abs(footballer.traits.flair - uFlair) +
+          Math.abs(footballer.traits.leadership - uLead) +
+          Math.abs(footballer.traits.teamwork - uTeam);
 
         if (distance < minDistance) {
           minDistance = distance;
-          bestMatch = footballer;
+          bestMatch = { ...footballer }; // Create a copy
         }
       });
+
+      // Calculate Match Percentage
+      // Max possible distance per trait is ~3. Total max distance ~12.
+      // If distance is 0, match is 100%. If distance is 3, match is ~75%.
+      // Formula: 100 - (distance * 8) ensures a reasonable spread (Dist 2 => 84%)
+      if (bestMatch) {
+          let percent = Math.max(50, 100 - (minDistance * 9)); 
+          bestMatch.matchPercentage = Math.round(percent);
+      }
 
       return bestMatch;
     }
 
-    function resetProgram() {
+    function resetProgram(silent = false) {
       isProgramStopped = true;
       currentFootballer = null;
       currentQuestionIndex = 0;
       userTraits = { power: 0, flair: 0, leadership: 0, teamwork: 0 };
+
+      // Stop Timers & Game
+      if (questionTimer) clearInterval(questionTimer);
+      if (minigameInterval) cancelAnimationFrame(minigameInterval);
+      if (keepieAnimation) cancelAnimationFrame(keepieAnimation); // Stop keepie uppie
+      gameActive = false;
+      keepieGameActive = false;
+      document.getElementById("minigameContainer").classList.remove("show");
+      document.getElementById("keepieContainer").style.display = "none";
+      
+      // Reset Ball
+      const ball = document.getElementById("ball");
+      if(ball) {
+          ball.classList.remove("ball-moving");
+          ball.style.top = "";
+          ball.style.bottom = "30px";
+          ball.style.transform = "translateX(-50%)";
+      }
 
       if (progressInterval) {
         clearInterval(progressInterval);
@@ -450,17 +912,13 @@ const footballers = [
       document.getElementById("resultContainer").classList.remove("show");
       document.getElementById("progressBar").style.width = "0%";
       document.getElementById("progressText").textContent = "Analyzing stats...";
-      document.getElementById("userName").value = "";
+      // Don't clear username if just restarting game
       document.getElementById("questionText").innerHTML = "";
 
-      alert("Program has been reset. Please enter your name to start a new quiz.");
+      if(!silent) alert("Program has been reset. Please enter your name to start a new quiz.");
     }
 
-    function toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const newTheme = currentTheme === "light" ? "dark" : "light";
-      document.documentElement.setAttribute("data-theme", newTheme);
-    }
+
 
     function handleEnter(event) {
       if (event.key === 'Enter' || event.keyCode === 13) {
@@ -469,5 +927,35 @@ const footballers = [
     }
 
     document.documentElement.setAttribute("data-theme", "dark");
+    
+    // Init Game Listener
+    document.addEventListener("DOMContentLoaded", () => {
+         // Show menu by default
+         showMenu();
+
+         const gameArea = document.getElementById("gameArea");
+         if(gameArea) {
+             gameArea.addEventListener("click", (e) => {
+                 if(currentGameMode === 'penalty') shoot(e);
+             });
+             gameArea.addEventListener("touchstart", (e) => {
+                 e.preventDefault(); 
+                 if(currentGameMode === 'penalty') shoot(e);
+             });
+         }
+         
+         const keepieArea = document.getElementById("keepieArea");
+         if(keepieArea) {
+             keepieArea.addEventListener("mousedown", (e) => {
+                  if(currentGameMode === 'keepie') keepieTap();
+             });
+              keepieArea.addEventListener("touchstart", (e) => {
+                 e.preventDefault();
+                 if(currentGameMode === 'keepie') keepieTap();
+             });
+         }
+         
+         // Global restart listener? Maybe not needed as we have UI buttons now.
+    });
 
 

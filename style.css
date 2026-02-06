@@ -1,376 +1,406 @@
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      line-height: 1.6;
-      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      overflow-x: hidden;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    :root {
-      --primary-color: #1e90ff;
-      --secondary-color: #ff6b6b;
-      --accent-color: #28a745;
-      --card-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      --button-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      --transition: all 0.3s ease;
-    }
+:root {
+  --neon-green: #39FF14;
+  --neon-cyan: #00FFFF;
+  --neon-pink: #FF00FF;
+  --electric-purple: #9D00FF;
+  --obsidian: #121212;
+  --glass-bg: rgba(20, 20, 30, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  
+  --shadow-glow: 0 0 20px rgba(0, 255, 255, 0.2);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  
+  --bg-dark-grad: radial-gradient(circle at center, #1a2a6c, #b21f1f, #fdbb2d); /* Fallback */
+  --bg-dark-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+}
 
-    [data-theme="light"] {
-      --bg-gradient-start: #e0f7fa;
-      --bg-gradient-end: #80deea;
-      --text-color: #1a1a1a;
-      --card-bg: #ffffff;
-      --button-bg: #1e90ff;
-      --button-hover: #1565c0;
-      --progress-bg: #e0e0e0;
-      --progress-fill: #28a745;
-    }
+body {
+  font-family: 'Poppins', sans-serif;
+  /* Updated Background with Image and Dark Overlay */
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  overflow-x: hidden;
+}
 
-    [data-theme="dark"] {
-      --bg-gradient-start: #1c2526;
-      --bg-gradient-end: #2e4057;
-      --text-color: #e0e0e0;
-      --card-bg: #2c3e50;
-      --button-bg: #1e90ff;
-      --button-hover: #1565c0;
-      --progress-bg: #4a5e72;
-      --progress-fill: #28a745;
-    }
+h1, h2, h3 {
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+}
 
-    h1 {
-      font-size: 2.8em;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      text-align: center;
-      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      animation: fadeIn 1s ease-in-out;
-    }
+h1 {
+  font-size: 3rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(to right, var(--neon-cyan), var(--neon-green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+  animation: glowPulse 3s infinite alternate;
+}
 
-    .input-container {
-      margin-bottom: 1.5rem;
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-    }
+@keyframes glowPulse {
+    from { text-shadow: 0 0 10px rgba(0, 255, 255, 0.2); }
+    to { text-shadow: 0 0 25px rgba(57, 255, 20, 0.6); }
+}
 
-    input[type="text"] {
-      padding: 12px;
-      font-size: 1em;
-      border: 2px solid var(--primary-color);
-      border-radius: 8px;
-      width: 100%;
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      transition: var(--transition);
-      box-shadow: var(--button-shadow);
-    }
+/* Glassmorphism Cards */
+.input-container, #quizApp, #minigameContainer, #keepieContainer, #resultContainer, #progressContainer {
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 600px;
+  color: var(--text-primary);
+}
 
-    input[type="text"]:focus {
-      outline: none;
-      border-color: var(--secondary-color);
-      box-shadow: 0 0 8px var(--secondary-color);
-    }
+.input-container, #quizContainer, #minigameContainer, #keepieContainer, #resultContainer, #progressContainer {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: var(--card-shadow);
+  position: relative;
+}
 
-    .button-container {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+/* Default Hidden State for Logic Containers */
+#quizContainer, #resultContainer, #progressContainer, #minigameContainer, #keepieContainer {
+    display: none;
+}
 
-    button {
-      padding: 12px 24px;
-      font-size: 1em;
-      font-weight: 600;
-      background: linear-gradient(45deg, var(--button-bg), var(--secondary-color));
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: var(--transition);
-      box-shadow: var(--button-shadow);
-    }
+/* Utility Classes for Visibility */
+.hidden-initial {
+    display: none !important;
+}
 
-    button:hover {
-      background: linear-gradient(45deg, var(--button-hover), var(--secondary-color));
-      transform: translateY(-2px);
-    }
+.show {
+    display: block !important;
+    animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
 
-    button:disabled {
-      background: var(--progress-bg);
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
-    button.clicked {
-      transform: scale(0.95);
-    }
+/* Input Customization */
+input[type='text'] {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 15px;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  transition: all 0.3s ease;
+  width: 100%;
+}
 
-    #quizContainer {
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: var(--card-shadow);
-      width: 100%;
-      max-width: 600px;
-      text-align: center;
-      margin-bottom: 1.5rem;
-      display: none;
-      animation: slideIn 0.5s ease-out;
-    }
+input[type='text']:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px var(--neon-cyan);
+  background: rgba(0,0,0,0.6);
+}
 
-    #quizContainer.show {
-      display: block;
-    }
+/* Custom Buttons */
+.button-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
 
-    .quiz-question h3 {
-      font-size: 1.5em;
-      margin-bottom: 1rem;
-      color: var(--text-color);
-    }
+button {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
 
-    .quiz-option {
-      padding: 12px;
-      margin: 8px 0;
-      background: var(--button-bg);
-      color: #fff;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: var(--transition);
-      font-weight: 500;
-      box-shadow: var(--button-shadow);
-    }
+button::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    transition: 0.5s;
+}
 
-    .quiz-option:hover {
-      background: var(--button-hover);
-      transform: translateY(-2px);
-    }
+button:hover::before {
+    transform: translateX(100%);
+}
 
-    #progressContainer {
-      width: 100%;
-      max-width: 600px;
-      margin-bottom: 1.5rem;
-      display: none;
-    }
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 20px var(--neon-cyan);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan);
+}
 
-    #progressContainer.show {
-      display: block;
-    }
+button:active {
+  transform: translateY(-1px);
+}
 
-    #progressBackground {
-      width: 100%;
-      height: 24px;
-      background: var(--progress-bg);
-      border-radius: 12px;
-      overflow: hidden;
-    }
+button:nth-child(1) { border-bottom: 3px solid var(--neon-cyan); }
+button:nth-child(2) { border-bottom: 3px solid var(--neon-green); }
+button:nth-child(3) { border-bottom: 3px solid var(--electric-purple); }
 
-    #progressBar {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(45deg, var(--progress-fill), var(--secondary-color));
-      border-radius: 12px;
-      transition: width 0.3s ease;
-    }
+/* Quiz Option Buttons */
+.quiz-option {
+    background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
+    border: 1px solid var(--glass-border);
+    padding: 15px 20px;
+    margin: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    color: var(--text-primary);
+    text-align: left;
+    width: 100%;
+}
 
-    #progressText {
-      margin-top: 0.5rem;
-      font-size: 1em;
-      font-weight: 500;
-      color: var(--text-color);
-      text-align: center;
-    }
+.quiz-option:hover {
+    background: rgba(0, 255, 255, 0.15);
+    border-color: var(--neon-cyan);
+    padding-left: 25px;
+    box-shadow: 0 0 15px rgba(0,255,255,0.3);
+}
 
-    #resultContainer {
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: var(--card-shadow);
-      width: 100%;
-      max-width: 600px;
-      text-align: center;
-      display: none;
-      animation: slideIn 0.5s ease-out;
-    }
+.quiz-option::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: 0.3s;
+    color: var(--neon-cyan);
+}
 
-    #resultContainer.show {
-      display: block;
-    }
+.quiz-option:hover::after {
+    right: 20px;
+    opacity: 1;
+}
 
-    #randomImage {
-      max-width: 100%;
-      height: auto;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      opacity: 0;
-      transition: opacity 0.7s ease, transform 0.7s ease;
-      transform: scale(0.9);
-    }
+/* Game Area */
+#gameArea, #keepieArea {
+    position: relative;
+    height: 350px;
+    border: 3px solid var(--neon-green);
+    box-shadow: 0 0 25px rgba(57, 255, 20, 0.4);
+    margin: 20px 0;
+    display: block;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    
+    /* Grass Texture */
+    background:
+        linear-gradient(rgba(0, 20, 0, 0.7), rgba(0, 20, 0, 0.7)),
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 40px,
+            rgba(255, 255, 255, 0.03) 40px,
+            rgba(255, 255, 255, 0.03) 80px
+        );
+    background-color: #1e5631;
+}
 
-    #randomImage.show {
-      opacity: 1;
-      transform: scale(1);
-    }
+#goal {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 90px;
+    border: 6px solid rgba(255, 255, 255, 0.9);
+    border-bottom: none;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
 
-    #playerName,
-    #playerPosition,
-    #playerBio,
-    #playerAchievements {
-      opacity: 0;
-      transition: opacity 0.7s ease, transform 0.7s ease;
-      transform: translateY(20px);
-    }
+#goalkeeper {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    background: var(--electric-purple);
+    border-radius: 50% 50% 0 0;
+    transform: translateX(-50%);
+    box-shadow: 0 0 15px var(--electric-purple);
+    transition: left 0.1s linear;
+}
 
-    #playerName.show,
-    #playerPosition.show,
-    #playerBio.show,
-    #playerAchievements.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+#ball {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 38px;
+    height: 38px;
+    background: radial-gradient(circle at 35% 35%, #ffffff, #dcdcdc 40%, #222 90%);
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+    z-index: 2;
+}
 
-    #playerName.hidden-initial,
-    #playerPosition.hidden-initial,
-    #playerBio.hidden-initial,
-    #playerAchievements.hidden-initial {
-      display: none;
-    }
+.ball-moving {
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
 
-    #playerName {
-      font-size: 2em;
-      font-weight: 700;
-      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
+#penaltyScore, #keepieScore, #keepieBest {
+    color: var(--neon-green);
+    font-size: 2em;
+    font-family: 'Orbitron', monospace;
+    text-align: center;
+    text-shadow: 0 0 10px var(--neon-green);
+    margin: 10px 0;
+}
 
-    #playerPosition {
-      font-size: 1.2em;
-      font-weight: 500;
-      margin-bottom: 1rem;
-    }
+/* Image Presentation */
+#randomImage {
+    border: 4px solid var(--text-primary);
+    box-shadow: 0 0 40px rgba(0,0,0,0.6);
+    max-height: 400px;
+    object-fit: cover;
+    width: 100%;
+    border-radius: 12px;
+    display: none; /* CHANGED: Initially hidden */
+    margin: 0 auto 20px auto;
+}
 
-    #playerBio {
-      font-size: 1em;
-      margin-bottom: 1rem;
-    }
+/* Loading/Progress Bar */
+#progressBackground {
+    width: 100%;
+    height: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+    border: 1px solid var(--glass-border);
+}
 
-    #achievementsList {
-      list-style-type: none;
-      text-align: left;
-      margin-left: 1.5rem;
-    }
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+    box-shadow: 0 0 20px var(--neon-green);
+    transition: width 0.15s ease-out;
+}
 
-    #achievementsList li {
-      position: relative;
-      padding-left: 1.5rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.9em;
-    }
+/* Timer Bar */
+#timerBar {
+    height: 6px;
+    background: var(--neon-cyan);
+    width: 0%;
+    margin-top: 15px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px var(--neon-cyan);
+    transition: width 1s linear, background-color 0.3s;
+}
 
-    #achievementsList li::before {
-      content: '⚽';
-      position: absolute;
-      left: 0;
-      color: var(--secondary-color);
-    }
+.floating-text {
+    position: absolute;
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-weight: 800;
+    font-size: 1.8rem;
+    pointer-events: none;
+    animation: floatUp 1s ease-out forwards;
+    text-shadow: 0 0 10px rgba(255,255,255,0.8);
+    transform: translate(-50%, 0);
+    z-index: 100;
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+@keyframes floatUp {
+  0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -60px) scale(1.5); opacity: 0; }
+}
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-20px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+/* Keepie Uppie Specifics */
+#keepieArea {
+    background: #1e5631 radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.15), transparent 70%);
+}
 
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2.2em;
-      }
+#keepieBall {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    /* Start with a clean transform */
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    /* High Visibility Mode */
+    background-color: #ffffff;
+    background: radial-gradient(circle at 35% 35%, #ffffff, #dcdcdc 40%, #222 90%);
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+    border: 2px solid white; 
+    cursor: pointer;
+    z-index: 1000 !important;
+    display: block !important;
+}
 
-      .input-container {
-        max-width: 90%;
-      }
+#keepieTarget {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 20px;
+    background: rgba(57, 255, 20, 0.2);
+    border-radius: 50%;
+    box-shadow: 0 0 20px var(--neon-green);
+    filter: blur(5px);
+    z-index: 1;
+}
 
-      button {
-        padding: 10px 20px;
-        font-size: 0.9em;
-      }
+/* Responsive */
+@media (max-width: 600px) {
+  h1 { font-size: 2rem; }
+  .input-container, #quizContainer, #minigameContainer, #keepieContainer { padding: 1.5rem; }
+  button { padding: 12px 20px; font-size: 0.9rem; }
+}
 
-      .quiz-question h3 {
-        font-size: 1.3em;
-      }
-
-      #quizContainer,
-      #resultContainer {
-        padding: 1.5rem;
-        max-width: 90%;
-      }
-
-      #playerName {
-        font-size: 1.8em;
-      }
-
-      #playerPosition {
-        font-size: 1.1em;
-      }
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.8em;
-      }
-
-      input[type="text"] {
-        padding: 10px;
-        font-size: 0.9em;
-      }
-
-      button {
-        padding: 8px 16px;
-        font-size: 0.85em;
-      }
-
-      .quiz-option {
-        padding: 10px;
-        font-size: 0.9em;
-      }
-
-      #quizContainer,
-      #resultContainer {
-        padding: 1rem;
-      }
-
-      #playerName {
-        font-size: 1.5em;
-      }
-
-      #playerBio {
-        font-size: 0.9em;
-      }
-
-      #achievementsList li {
-        font-size: 0.85em;
-      }
-    }
- 
